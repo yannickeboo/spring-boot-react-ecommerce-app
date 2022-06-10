@@ -167,4 +167,4 @@ services:
 networks:
   spring-cloud-microservices:
     driver: bridge
-    external: true
+   
