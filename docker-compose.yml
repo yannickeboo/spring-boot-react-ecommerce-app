@@ -6,10 +6,10 @@ services:
     container_name: mysql-db-container
     env_file: .env-sample
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: mypass
+      MYSQL_DATABASE: ecommerce_app_database
+      MYSQL_USER: mysqluser
+      MYSQL_PASSWORD: mypass
     volumes:
         - ./mysql-db/user.sql:/docker-entrypoint-initdb.d/user.sql
     ports:
@@ -21,7 +21,7 @@ services:
     image: redis:alpine
     env_file: .env-sample
     container_name: redis-cache-container
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass mypass
     ports:
       - 6379:6379
     networks:
@@ -40,18 +40,18 @@ services:
       - react-ui
     environment:
       - DB_HOST=mysql-db
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_SCHEMA=${DB_SCHEMA}
-      - ACTIVE_PROFILE=${ACTIVE_PROFILE}
-      - PORT=${AUTHENTICATION_SERVICE_PORT}
+      - DB_PORT=3306
+      - DB_USER=mysqluser
+      - DB_PASS=mypass
+      - DB_SCHEMA=ecommerce_app_database
+      - ACTIVE_PROFILE=dev
+      - PORT=7000
     links:
       - mysql-db:mysql
     expose:
-      - ${AUTHENTICATION_SERVICE_PORT}
+      - 7000
     ports:
-      - ${AUTHENTICATION_SERVICE_PORT}:${AUTHENTICATION_SERVICE_PORT}
+      - 7000:7000
     networks:
       - spring-cloud-microservices
 
@@ -68,22 +68,22 @@ services:
       - react-ui
     environment:
       - DB_HOST=mysql-db
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_SCHEMA=${DB_SCHEMA}
-      - ACTIVE_PROFILE=${ACTIVE_PROFILE}
-      - PORT=${COMMON_DATA_SERVICE_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DB_PORT=3306
+      - DB_USER=mysqluser
+      - DB_PASS=mypass
+      - DB_SCHEMA=ecommerce_app_database
+      - ACTIVE_PROFILE=dev
+      - PORT=9000
+      - REDIS_PASSWORD=mypass
       - REDIS_HOST=redis-cache
-      - REDIS_PORT=${REDIS_PORT}
-      - REACT_CLIENT_URL=${REACT_CLIENT_URL}
+      - REDIS_PORT=6379
+      - REACT_CLIENT_URL=http://localhost:3000
     links:
       - mysql-db:mysql
     expose:
-      - ${COMMON_DATA_SERVICE_PORT}
+      - 9000
     ports:
-      - ${COMMON_DATA_SERVICE_PORT}:${COMMON_DATA_SERVICE_PORT}
+      - 9000:9000
     networks:
       - spring-cloud-microservices
 
@@ -102,13 +102,13 @@ services:
       - authentication-service
       - payment-service
     environment:
-      - ACTIVE_PROFILE=${ACTIVE_PROFILE}
-      - PORT=${SEARCH_SUGGESTION_SERVICE_PORT}
-      - COMMON_DATA_SERVICE_URL=http://common-data-service:${COMMON_DATA_SERVICE_PORT}
+      - ACTIVE_PROFILE=dev
+      - PORT=10000
+      - COMMON_DATA_SERVICE_URL=http://common-data-service:9000
     expose:
-      - ${SEARCH_SUGGESTION_SERVICE_PORT}
+      - 10000
     ports:
-      - ${SEARCH_SUGGESTION_SERVICE_PORT}:${SEARCH_SUGGESTION_SERVICE_PORT}
+      - 10000:10000
     networks:
       - spring-cloud-microservices
 
@@ -125,18 +125,18 @@ services:
       - react-ui
     environment:
       - DB_HOST=mysql-db
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_SCHEMA=${DB_SCHEMA}
-      - ACTIVE_PROFILE=${ACTIVE_PROFILE}
-      - PORT=${PAYMENT_SERVICE_PORT}
+      - DB_PORT=3306
+      - DB_USER=mysqluser
+      - DB_PASS=mypass
+      - DB_SCHEMA=ecommerce_app_database
+      - ACTIVE_PROFILE=dev
+      - PORT=9050
     links:
       - mysql-db:mysql
     expose:
-      - ${PAYMENT_SERVICE_PORT}
+      - 9050
     ports:
-      - ${PAYMENT_SERVICE_PORT}:${PAYMENT_SERVICE_PORT}
+      - 9050:9050
     networks:
       - spring-cloud-microservices
 
@@ -149,13 +149,13 @@ services:
     stdin_open: true
     restart: always
     expose:
-      - ${REACT_APP_PORT}
+      - 3000
     ports:
-      - ${REACT_APP_PORT}:${REACT_APP_PORT}
+      - 3000:3000
     environment:
-      - REACT_APP_STRIPE_PUBLISH_KEY=${REACT_APP_STRIPE_PUBLISH_KEY}
-      - REACT_APP_COMMON_DATA_SERVICE_PORT=${COMMON_DATA_SERVICE_PORT}
-      - REACT_APP_ENVIRONMENT=${REACT_APP_ENVIRONMENT}
+      - REACT_APP_STRIPE_PUBLISH_KEY=pk_test_51H805Oa3n3j3JVXUotWOsdf223PXI2ZehJ0s4QSQK0WjEJer78w87wer8h2u3bo32sTVcxyh5bDuulBildNrp
+      - REACT_APP_COMMON_DATA_SERVICE_PORT=9000
+      - REACT_APP_ENVIRONMENT=dev
     volumes:
       - ./client:/usr/src/app
       - /usr/src/app/node_modules
